@@ -1,0 +1,1824 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>arrhythmia-report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/d3@5.16.0/dist/d3.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/c3@0.7.20/c3.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/c3@0.7.20/c3.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://highcharts.github.io/pattern-fill/pattern-fill-v2.js"></script>
+    <script src="https://www.amcharts.com/lib/4/core.js"></script>
+    <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
+
+    <style>
+        *,
+        ::after,
+        ::before {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+            color: #002444;
+            line-height: 1.5;
+            font-weight: 400;
+
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+        }
+
+        figure {
+            margin: 0;
+        }
+
+        li {
+            list-style: none;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 0;
+            color: #002444;
+            font-weight: 600;
+        }
+
+        .report-area {
+            width: 600px;
+            margin: auto;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .align-items {
+            align-items: center;
+        }
+
+        .user-list {
+            justify-content: space-between;
+        }
+
+        .user-list li {
+            display: flex;
+        }
+
+        .user-list li span {
+            width: 50%;
+            display: block;
+            font-size: 7px;
+        }
+
+        .justify-center {
+            justify-content: center;
+        }
+
+        .report-header {
+            background-color: #FBFBFB;
+            margin-bottom: 8px;
+            padding: 15px;
+            border-radius: 2px;
+            display: flex;
+        }
+
+        .report-logo {
+            width: 20%;
+            padding-right: 20px;
+        }
+
+        .report-logo img {
+            max-width: 100%;
+        }
+
+        .user-detail {
+            width: 30%;
+            padding-right: 20px;
+        }
+
+        .user-detail h4 {
+            font-size: 10px;
+        }
+
+        .report-info {
+            width: 50%;
+            padding-left: 20px;
+        }
+
+        .heading-area h2 {
+            font-size: 16px;
+            margin: 20px 0px 10px;
+        }
+
+        .report-panel {
+            background-color: #FBFBFB;
+            margin-bottom: 8px;
+            border-radius: 2px;
+        }
+
+        .heading-panel {
+            border-radius: 2px;
+            background-color: #BCE5FD;
+            padding: 6px 12px;
+        }
+
+        .heading-panel h2 {
+            font-size: 12px;
+        }
+
+        .alert-panel .left-panel {
+            width: 20%;
+            text-align: center;
+            padding: 10px 5px;
+        }
+
+        .alert-panel .left-panel h5 {
+            margin-bottom: 5px;
+            font-weight: 400;
+            font-size: 7px;
+        }
+
+        .alert-panel .right-panel {
+            width: 80%;
+            display: flex;
+        }
+
+        .alert-panel .right-panel>div {
+            width: 50%;
+            padding: 0px 10px;
+        }
+
+        .alert-panel .right-panel>div:last-child {
+            padding-left: 0;
+        }
+
+        .alert-listing {
+            margin-top: 10px;
+        }
+
+        .alert-listing>li {
+            border-radius: 4px;
+            font-size: 7px;
+            padding: 4px 4px;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            background-color: #EFF9FF;
+            display: flex;
+        }
+
+        .alert-listing>li>div {
+            padding: 0px 6px;
+        }
+
+        .alert-listing>li>.alert-icon {
+            width: 30%;
+        }
+
+        .alert-listing>li>.alert-limit-area {
+            width: 50%;
+        }
+
+        .alert-listing>li>.total-alert {
+            width: 20%;
+        }
+
+        .total-alert strong {
+            display: block;
+            line-height: 8px;
+        }
+
+        .total-alert span {
+            display: block;
+            line-height: 8px;
+        }
+
+        .alert-icon img {
+            margin-right: 3px;
+        }
+
+        ul.alert-steper {
+            display: flex;
+            position: relative;
+            justify-content: center;
+
+        }
+
+        ul.alert-steper:after {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 0px;
+            background-color: #00549F;
+            margin: auto;
+            right: 0px;
+            width: calc(100% - 35px);
+            height: 1px;
+            content: '';
+        }
+
+        ul.alert-steper li {
+            flex-direction: column;
+            display: flex;
+            width: 33.33%;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        ul.alert-steper li span {
+            padding: 3px 0px
+        }
+
+        ul.alert-steper li span:last-child {
+            padding-bottom: 0;
+        }
+
+        ul.alert-steper li:after {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 0px;
+            border-radius: 50%;
+            background-color: #00549F;
+            margin: auto;
+            right: 0px;
+            width: 3px;
+            height: 3px;
+            content: '';
+        }
+
+        .posture-area {
+            background-color: #FBFBFB;
+            margin-bottom: 8px;
+            border-radius: 2px;
+            padding: 10px 0px;
+            display: flex;
+        }
+
+        .posture-area .posture-block {
+            width: 50%;
+            padding: 0px 10px;
+        }
+
+        .posture-area .posture-block:last-child {
+            padding-left: 0;
+        }
+
+        .posture-area .posture-block ul {
+            background-color: #EFF9FF;
+            border-radius: 4px;
+            height: 100%;
+            padding: 0px 12px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .posture-area .posture-block ul li span {
+            display: block;
+            font-size: 8px;
+        }
+
+        .posture-area .posture-block ul li {
+            padding: 4px 0px;
+        }
+
+        .posture-area .posture-block ul li span+span {
+            font-size: 6px;
+        }
+
+        .posture-block ul.posture-list li {
+            width: 25%;
+        }
+
+        .posture-block ul.symptoms-list li {
+            width: 33.33%;
+            text-align: center;
+        }
+
+        .trend-panel {
+            background-color: #FBFBFB;
+            margin-bottom: 8px;
+            border-radius: 2px;
+            padding: 0px 0px;
+        }
+
+        .trend-listing>li {
+            border-radius: 4px;
+            font-size: 8px;
+            padding: 4px 6px;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            background-color: #EFF9FF;
+            display: flex;
+            align-items: center;
+        }
+
+        .pt20 {
+            padding: 4px 10px;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        .left-trend {
+            width: 25%;
+        }
+
+        .left-trend img {
+            margin-right: 6px;
+        }
+
+        .right-trend {
+            width: 75%;
+            text-align: right;
+        }
+
+        .bottom-bar ul {
+            margin: 0;
+            padding: 12px 0px 10px;
+            display: flex;
+            align-items: center;
+            font-size: 8px;
+        }
+
+        .bottom-bar ul li {
+            margin-right: 30px;
+            display: flex;
+        }
+
+        .bottom-bar ul li span {
+            display: inline-block;
+            margin-right: 12px;
+        }
+
+        .bottom-bar ul li:last-child {
+            margin-right: 0;
+        }
+
+        .bottom-bar ul li span.square-bar {
+            height: 13px;
+            width: 18px;
+            background-color: #DFE0E1;
+        }
+
+        .bottom-bar ul li span.line-bar {
+            width: 17px;
+            border: 2px solid #7AD9A2
+        }
+
+        .bottom-bar ul li span.dot-line {
+            width: 17px;
+            border: 1px dashed #686868;
+        }
+
+
+        table {
+            caption-side: bottom;
+
+            width: 100%;
+            font-size: 8px;
+            border-spacing: 0 3px;
+            font-size: 7px;
+        }
+
+        tbody,
+        td,
+        tfoot,
+        th,
+        thead,
+        tr {
+            border-color: inherit;
+
+            border-width: 0;
+        }
+
+        .table> :not(caption)>*>* {
+            padding: 3px 5px;
+            text-align: left;
+            border-bottom-width: 1px;
+        }
+
+        .table-header {
+            display: flex;
+            padding: 0px 0px;
+        }
+
+        .left-table {
+            width: 20%;
+        }
+
+        .right-table {
+            width: 100%;
+            text-align: center;
+        }
+
+        .manual-events {
+            background-color: #FBFBFB;
+            margin-bottom: 8px;
+            border-radius: 2px;
+            padding: 0px 0px;
+        }
+
+        .total-event {
+            height: 42px;
+            width: 70px;
+            border-radius: 4px;
+            background-color: #EFF9FF;
+            padding: 6px;
+        }
+
+        .total-event span {
+            display: block;
+            font-size: 10px;
+            line-height: 12px;
+        }
+
+        .total-event strong {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 16px;
+        }
+
+        .table tbody tr {
+            background: rgba(188, 230, 253, 0.12);
+        }
+
+        .table tr td:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .table tr td:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .table tr th {
+            font-weight: 600;
+            padding-top: 0;
+        }
+
+        .table tr td {
+            line-height: 10px;
+        }
+
+        b {
+            font-weight: 600;
+        }
+
+        .alertcount {
+            font-size: 8px;
+        }
+
+        .event-box {
+            font-size: 7px;
+        }
+
+        .event-box .event-left {
+            background-color: #BCE6FD;
+            padding: 5px 4px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 27%;
+        }
+
+        .event-box .event-left strong {
+            font-size: 10px;
+            display: block;
+        }
+
+        .event-box .event-left strong small {
+            font-weight: 400;
+            font-size: 7px;
+        }
+
+        .event-table tr td {
+            border-bottom: 1px solid #BCE6FD;
+            line-height: 7px;
+            padding: 3px 0px;
+            vertical-align: middle;
+        }
+
+        .event-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .event-table tr:first-child td {
+            padding-top: 0;
+        }
+
+        .event-right {
+            width: 73%;
+        }
+
+        .event-table {
+            border-spacing: 0;
+            height: 100%;
+        }
+
+        .alert-listing>li:last-child {
+            margin-bottom: 0;
+        }
+
+        .heading-panel.newhead {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .newhead span {
+            font-size: 7px;
+            font-weight: 400;
+            display: block;
+            line-height: 7px;
+        }
+
+        .alertsignal-listing .left-trend {
+            background: rgba(188, 230, 253, 0.4);
+            border-radius: 4px;
+            padding: 3px 6px;
+        }
+
+        .alertsignal-listing li {
+            background-color: transparent;
+            padding: 3px 6px;
+            align-items: normal;
+        }
+
+        .alertsignal-listing .right-trend {
+            padding-left: 10px;
+        }
+
+        .alertsignal-listing table {
+            border-spacing: 0;
+            height: 100%;
+        }
+
+        .alertsignal-listing table tr th,
+        .alertsignal-listing table tr td {
+            padding: 3px 2px;
+            vertical-align: top;
+            line-height: 7px;
+        }
+
+        .alertsignal-listing table.degree-table tr th,
+        .alertsignal-listing table.degree-table tr td {
+            padding: 1px 2px;
+            vertical-align: top;
+            line-height: 7px;
+        }
+
+        .alertsignal-listing table tr:first-child th,
+        .alertsignal-listing table tr:first-child td {
+            padding-bottom: 0;
+        }
+
+        .arrhythmia-alert table tr td {
+            line-height: 8px;
+        }
+
+        .main-headuing {
+            font-size: 12px;
+            display: block;
+            text-align: center;
+            font-weight: 600;
+            padding: 6px;
+        }
+
+        .arrhythmia-trend-panel .right-trend {
+            width: 100%;
+            padding-left: 0;
+            text-align: center;
+        }
+
+        .counter-info {
+            display: flex;
+            margin: 5px -2px 10px;
+            padding: 0;
+        }
+
+        .counter-info li {
+            list-style: none;
+            padding: 0px 2px;
+            width: 25%;
+        }
+
+        .counter-info li .counterbox {
+            height: 42px;
+            border-radius: 4px;
+            background: #BCE6FD;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px;
+        }
+
+        .counter-info li .counterbox strong {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .counter-info li .counterbox span {
+            font-size: 10px;
+            font-weight: 400;
+        }
+
+        .legendLabel {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .legendLabel div {
+            width: 50%;
+            font-family: Open Sans;
+            font-size: 7px;
+            font-weight: 400;
+            line-height: 8px;
+            letter-spacing: 0px;
+            text-align: left;
+            margin-bottom: 5px;
+        }
+
+        #piechart text {
+            font-size: 6px;
+            fill: #002444;
+        }
+
+        .pieChartbox {
+            display: flex;
+            align-items: center;
+        }
+
+        .pieChartboxColor1 {
+            background-color: #00BBEF;
+            display: inline-block;
+            height: 6px;
+            width: 6px;
+            margin-right: 2px;
+        }
+
+        .pieChartboxColor2 {
+            background-color: #6ed9f7;
+            display: inline-block;
+            height: 6px;
+            width: 6px;
+            margin-right: 2px;
+
+        }
+
+        .pieChartboxColor3 {
+            background-color: #37d4ff;
+            display: inline-block;
+            height: 6px;
+            width: 6px;
+            margin-right: 2px;
+
+        }
+
+        .pieChartboxColor4 {
+            background-color: #00aad9;
+            display: inline-block;
+            height: 6px;
+            width: 6px;
+            margin-right: 2px;
+
+        }
+
+        #data-json {
+            display: none;
+        }
+
+        #ecgChart .c3-circles-data {
+            display: none;
+        }
+
+        #ecgChart .c3-circles-data1 {
+            display: none;
+        }
+
+
+        canvas {
+            width: 100%;
+            height: 50%;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 0;
+            background: transparent;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <div class="report-area">
+        <div class="heading-area text-center">
+            <h2>Arrhythmia Report</h2>
+        </div>
+        <div class="report-header">
+            <div class="report-logo"><img src={{svg.logo}} alt="logo"></div>
+            {{#patient.Personal-Info}}
+            <div class="user-detail">
+                <h4>{{Name}}</h4>
+                <div class="user-info">
+                    <ul class="user-list">
+                        <li>
+                            <span class="text-left">MRN</span>
+                            <span class="text-right">{{MRN}}</span>
+                        </li>
+                        <li>
+                            <span class="text-left">DOB</span>
+                            <span class="text-right">{{dob}}</span>
+                        </li>
+                        <li>
+                            <span class="text-left">Sex</span>
+                            <span class="text-right">{{sex}}</span>
+                        </li>
+                        <li>
+                            <span class="text-left">{{Address}}</span>
+                            <span class="text-right"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {{/patient.Personal-Info}}
+            {{#patient.Hostpital-Info}}
+            <div class="report-info">
+                <ul class="user-list">
+                    <li>
+                        <span class="text-left">Admitted</span>
+                        <span class="text-right">{{Addmitted}}</span>
+                    </li>
+                    <li>
+                        <span class="text-left">Discharged</span>
+                        <span class="text-right">{{Discharged}}</span>
+                    </li>
+                    <li>
+                        <span class="text-left">Report From</span>
+                        <span class="text-right">{{Report.from-date}}</span>
+                    </li>
+                    <li>
+                        <span class="text-left" style="padding-left: 30px">To</span>
+                        <span class="text-right">{{Report.to-date}}</span>
+                    </li>
+                    <li>
+                        <span class="text-left" style="padding-left: 30px">Printed</span>
+                        <span class="text-right">{{Report.printed}}</span>
+                    </li>
+                </ul>
+            </div>
+            {{/patient.Hostpital-Info}}
+        </div>
+
+        <div class="report-panel">
+            <div class="heading-panel">
+                <h2>Arrhythmia Events Summary</h2>
+            </div>
+
+
+
+            <div class="alert-panel d-flex">
+                <!-------------------------------------------------------------------
+                    ---------------------------------------------------------------------
+                                SECTION VITAL SIGNS AND ALERTS - PIE CHART
+                    ---------------------------------------------------------------------
+                    --------------------------------------------------------------------->
+
+                <div class="left-panel">
+                    <h5>Beat Analysis</h5>
+                    <div id="piechart"></div>
+                    <div class="legendLabel">
+                        <div class="pieChartbox">
+                            <span class="pieChartboxColor1"></span>
+                            Atrial
+                        </div>
+                        <div class="pieChartbox">
+                            <span class="pieChartboxColor2"></span>
+                            Ventricular
+                        </div>
+                        <div class="pieChartbox">
+                            <span class="pieChartboxColor3"></span>
+                            Artifact
+                        </div>
+                        <div class="pieChartbox">
+                            <span class="pieChartboxColor4"></span>
+                            Block & Pause
+                        </div>
+                    </div>
+                </div>
+
+                {{#patient.arrhythmia-events-summary}}
+
+                <div class="right-panel">
+                    <div class="alert-area">
+                        <ul class="alert-listing">
+                            <li class="event-box">
+                                {{#arrhythmia-events-leftside-heading}}
+                                <div class="event-left">
+                                    <div class="nameTop">{{title}}</div>
+                                    <div class="bottom-beats">
+                                        <strong>{{count}} <small>{{completion}}</small></strong>
+                                        <span>{{name}}</span>
+                                    </div>
+                                </div>
+                                {{/arrhythmia-events-leftside-heading}}
+                                <div class="event-right">
+                                    <table class="event-table">
+                                        <thead>
+                                            <tr>
+                                                <th width="60">Event</th>
+                                                <th>Duration</th>
+                                                <th>Beats</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{#arrhythmia-events-leftside}}
+                                            <tr>
+                                                <td width="60">{{event}}</td>
+                                                <td>{{duration}}</td>
+                                                <td>{{beats}}</td>
+                                            </tr>
+                                            {{/arrhythmia-events-leftside}}
+                                        </tbody>
+                                    </table>
+
+
+                                </div>
+                            </li>
+                            <li class="event-box">
+                                <div class="event-left">
+                                    {{#arrhythmia-events-leftside-down-heading}}
+                                    <div class="nameTop">{{title}}</div>
+                                    <div class="bottom-beats">
+                                        <strong>{{count}} <small>{{completion}}</small></strong>
+                                        <span>{{name}}</span>
+                                    </div>
+                                    {{/arrhythmia-events-leftside-down-heading}}
+                                </div>
+                                <div class="event-right">
+                                    <table class="event-table">
+                                        <thead>
+                                            <tr>
+                                                <th width="60">Event</th>
+                                                <th>Duration</th>
+                                                <th>Beats</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{#arrhythmia-events-leftside-down}}
+                                            <tr>
+                                                <td width="60">{{event}}</td>
+                                                <td>{{duration}}</td>
+                                                <td>{{beats}}</td>
+                                            </tr>
+                                            {{/arrhythmia-events-leftside-down}}
+
+                                        </tbody>
+
+                                    </table>
+
+
+                                </div>
+                            </li>
+
+                        </ul>
+
+
+
+                    </div>
+                    <div class="alert-area">
+
+                        <ul class="alert-listing" style="height: 100%;">
+                            <li class="event-box" style="height: 50%;">
+                                <div class="event-left">
+                                    {{#arrhythmia-events-rightside-heading}}
+                                    <div class="nameTop">{{title}}</div>
+                                    <div class="bottom-beats">
+                                        <strong>{{count}} <small>{{completion}}</small></strong>
+                                        <span>{{name}}</span>
+                                    </div>
+                                    {{/arrhythmia-events-rightside-heading}}
+                                </div>
+                                <div class="event-right">
+                                    <table class="event-table">
+                                        <thead>
+                                            <tr>
+                                                <th width="60">Event</th>
+                                                <th>Duration</th>
+                                                <th>Beats</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{#arrhythmia-events-rightside}}
+                                            <tr>
+                                                <td width="60">{{event}}</td>
+                                                <td>{{duration}}</td>
+                                                <td>{{beats}}</td>
+                                            </tr>
+                                            {{/arrhythmia-events-rightside}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                            <li class="event-box" style="height: 35%;">
+                                <div class="event-left">
+                                    {{#arrhythmia-events-rightside-down-heading}}
+                                    <div class="nameTop">{{title}}</div>
+                                    <div class="bottom-beats">
+                                        <strong>{{count}} <small>{{completion}}</small></strong>
+                                        <span>{{name}}</span>
+                                    </div>
+                                    {{/arrhythmia-events-rightside-down-heading}}
+                                </div>
+                                <div class="event-right">
+                                    <table class="event-table">
+                                        <thead>
+                                            <tr>
+                                                <th width="60">Event</th>
+                                                <th>Duration</th>
+                                                <th>Beats</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{#arrhythmia-events-rightside-down}}
+                                            <tr>
+                                                <td width="60">{{event}}</td>
+                                                <td>{{duration}}</td>
+                                                <td>{{beats}}</td>
+                                            </tr>
+                                            {{/arrhythmia-events-rightside-down}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {{/patient.arrhythmia-events-summary}}
+        </div>
+
+
+        <div class="trend-panel">
+
+            <div class="heading-panel newhead">
+                <h2>AF </h2>
+                <span class="time-info">Fastest: 85 bpm at 03/AUG/22, 19:20</span>
+            </div>
+            {{#patient.AF}}
+            <ul class="trend-listing alertsignal-listing">
+                <li>
+                    <div class="left-trend">
+
+                        <table>
+                            <tbody>
+                                {{#AF-Data}}
+                                <tr>
+                                    <th width="70">{{name}}</th>
+                                    <td>{{value}}</td>
+                                </tr>
+                                {{/AF-Data}}
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="right-trend">
+                        <div class="graphbar">
+                            <div class="lineEcgChart">
+
+
+                            </div>
+                            <div>
+                                <div id="ecgChart"></div>
+                                <!-- <div class="imageblock"><img src="images/ecg-signal.svg" alt="image"></div>
+                            <div class="imageblock"><img src="images/ecg-line.svg" alt="image"></div> -->
+
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            {{/patient.AF}}
+        </div>
+
+        <div class="trend-panel">
+            {{#patient.SVT}}
+            <div class="heading-panel newhead">
+                <h2>SVT (3 beats or more)</h2>
+                <span class="time-info">Fastest: 85 bpm at 03/AUG/22, 19:20</span>
+            </div>
+
+            <ul class="trend-listing alertsignal-listing">
+                <li>
+                    <div class="left-trend">
+                        <table>
+                            <tbody>
+                                {{#SVT-Data}}
+                                <tr>
+                                    <th width="70">{{name}}</th>
+                                    <td>{{value}}</td>
+                                </tr>
+                                {{/SVT-Data}}
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="right-trend">
+                        <div class="graphbar">
+                            <!-- <div class="graphbar" id="trendmmHg"></div> -->
+
+                            <canvas id="demo"></canvas>
+
+                            <!-- <div class="imageblock"><img src="images/ecg-signal.svg" alt="image"></div>
+                            <div class="imageblock"><img src="images/ecg-line.svg" alt="image"></div> -->
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            {{/patient.SVT}}
+        </div>
+        <div class="trend-panel">
+            {{#patient.AV-Block}}
+            <div class="heading-panel newhead">
+                <h2>AV Block (2nd degree & higher)</h2>
+                <span class="time-info">Fastest: 85 bpm at 03/AUG/22, 19:20</span>
+            </div>
+
+            <ul class="trend-listing alertsignal-listing">
+
+                <li>
+                    <div class="left-trend">
+                        <table class="degree-table">
+                            <tbody>
+                                {{#AV-Block-Data}}
+                                <tr>
+                                    <th width="75">{{name}}</th>
+                                    <td>{{value}}</td>
+                                </tr>
+                                {{/AV-Block-Data}}
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="right-trend">
+                        <div class="graphbar">
+                            <div class="imageblock"><img src="images/ecg-signal.svg" alt="image"></div>
+                            <div class="imageblock"><img src="images/ecg-line.svg" alt="image"></div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            {{/patient.AV-Block}}
+        </div>
+
+        <div class="trend-panel">
+            {{#patient.Pauses}}
+            <div class="heading-panel newhead">
+                <h2>Pauses (2.5 sec or more) </h2>
+                <span class="time-info">Fastest: 85 bpm at 03/AUG/22, 19:20</span>
+            </div>
+
+            <ul class="trend-listing alertsignal-listing">
+                <li>
+                    <div class="left-trend">
+                        <table>
+                            <tbody>
+                                {{#Pauses-data}}
+                                <tr>
+                                    <th width="70">{{name}}</th>
+                                    <td>{{value}}</td>
+                                </tr>
+                                {{/Pauses-data}}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="right-trend">
+                        <div class="graphbar">
+                            <div class="imageblock"><img src="images/ecg-signal.svg" alt="image"></div>
+                            <div class="imageblock"><img src="images/ecg-line.svg" alt="image"></div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            {{/patient.Pauses}}
+        </div>
+
+        <div class="trend-panel">
+
+            {{#patient.VT3-beats-or-more}}
+            <div class="heading-panel newhead">
+                <h2>VT (3 beats or more)</h2>
+                <span class="time-info">Fastest: 85 bpm at 03/AUG/22, 19:20</span>
+            </div>
+
+            <ul class="trend-listing alertsignal-listing">
+                <li>
+                    <div class="left-trend">
+
+                        <table>
+                            <tbody>
+                                {{#VT-data}}
+                                <tr>
+                                    <th width="70">{{name}}</th>
+                                    <td>{{value}}</td>
+                                </tr>
+                                {{/VT-data}}
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="right-trend">
+                        <div class="graphbar">
+                            <div class="imageblock"><img src="images/ecg-signal.svg" alt="image"></div>
+                            <div class="imageblock"><img src="images/ecg-line.svg" alt="image"></div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            {{/patient.VT3-beats-or-more}}
+        </div>
+
+        <div class="manual-events arrhythmia-alert">
+
+            <div class="heading-panel">
+                <h2>Arrhythmia Alerts Summary </h2>
+            </div>
+            {{#patient.ArrhythmiaAlertsSummary}}
+            <div class="pt20">
+
+                <ul class="counter-info">
+                    {{#ArrhythmiaAlertsHeading}}
+                    <li>
+                        <div class="counterbox"><span>{{name}}</span> <strong>{{value}}</strong></div>
+                    </li>
+                    {{/ArrhythmiaAlertsHeading}}
+                </ul>
+
+                <div class="table-header">
+                    <div class="right-table text-center">
+                        <div style="height: 60px; overflow: hidden; margin-left: -50px; ">
+                            <div id="clinical"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tablesort">
+                    <div><span class="alertcount">(Last 10 Alerts)</span></div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Alert Time</th>
+                                <th>Type</th>
+                                <th>Priority</th>
+                                <th>Acknowledged</th>
+                                <th>Action Taken (if any)</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {{#ArrhythmiaTable}}
+                            <tr>
+                                <td><b>{{alertTime}}</b><br />
+                                    {{alertDate}}</td>
+                                <td><b>{{type}}</b></td>
+                                <td><b>{{Priority}}</b></td>
+                                <td>{{AcknowledgeBy}}<br />
+                                    {{AcknowledgeTime}} {{AcknowledgeDate}}</td>
+                                <td>{{ActionTakers}}</td>
+                            </tr>
+                            {{/ArrhythmiaTable}}
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+            {{/patient.ArrhythmiaAlertsSummary}}
+        </div>
+        <div class="trend-panel arrhythmia-trend-panel">
+            <h2 class="main-headuing">Manually Added ECG Strips</h2>
+            <div>
+                <div class="heading-panel newhead">
+                    <h2>Strip 1 </h2>
+                    <span class="time-info">Fastest: 85 bpm at 03/AUG/22, 19:20</span>
+                </div>
+
+                <ul class="trend-listing alertsignal-listing">
+                    <li>
+                        <div class="right-trend">
+                            <div class="graphbar">
+                                <div class="imageblock"><img src="images/ecg-signal.svg" alt="image"></div>
+                                <div class="imageblock"><img src="images/ecg-line.svg" alt="image"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <div class="heading-panel newhead">
+                    <h2>Strip 2 </h2>
+                    <span class="time-info">Fastest: 85 bpm at 03/AUG/22, 19:20</span>
+                </div>
+
+                <ul class="trend-listing alertsignal-listing">
+                    <li>
+                        <div class="right-trend">
+                            <div class="graphbar">
+                                <div class="imageblock"><img src="images/ecg-signal.svg" alt="image"></div>
+                                <div class="imageblock"><img src="images/ecg-line.svg" alt="image"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <div class="heading-panel newhead">
+                    <h2>Strip 3 </h2>
+                    <span class="time-info">Fastest: 85 bpm at 03/AUG/22, 19:20</span>
+                </div>
+
+                <ul class="trend-listing alertsignal-listing">
+                    <li>
+                        <div class="right-trend">
+                            <div class="graphbar">
+                                <div class="imageblock"><img src="images/ecg-signal.svg" alt="image"></div>
+                                <div class="imageblock"><img src="images/ecg-line.svg" alt="image"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <div class="heading-panel newhead">
+                    <h2>Strip 4 </h2>
+                    <span class="time-info">Fastest: 85 bpm at 03/AUG/22, 19:20</span>
+                </div>
+
+                <ul class="trend-listing alertsignal-listing">
+                    <li>
+                        <div class="right-trend">
+                            <div class="graphbar">
+                                <div class="imageblock"><img src="images/ecg-signal.svg" alt="image"></div>
+                                <div class="imageblock"><img src="images/ecg-line.svg" alt="image"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+
+    </div>
+    <div id="ecg-report-graph"></div>
+
+
+    <!-------------------------------------------------------------------
+        ---------------------------------------------------------------------
+                DATA FETCHED ON HTML FOR BINDING DYNAMICALLY WITH CHART
+        ---------------------------------------------------------------------
+        --------------------------------------------------------------------->
+
+    <!-- For generating json value on html -->
+    <div id="data-json">
+        <ul id="piechartdata">
+            {{#each patient.arrhythmia-events-summary.PieValue.data}}
+            <li>
+                {{value}}-{{label}}-{{color}}
+            </li>
+            {{/each}}
+        </ul>
+
+
+        <!-- data for arrhythmia alert summary graph (column section) -->
+        <ul id="clinical">
+            {{#each patient.ArrhythmiaAlertsSummary.ecg_data.ECG_DATA_PATIENT}}
+            <li>
+                {{time}}-{{value}}
+            </li>
+            {{/each}}
+        </ul>
+
+
+        <!-- data for arrhythmia alert summary graph (column section) -->
+        <ul id="ecgReport">
+            {{#each patient.ArrhythmiaAlertsSummary.clinical-data.columns}}
+            <li>
+                {{time}}-{{value}}
+            </li>
+            {{/each}}
+        </ul>
+
+        <!-- data for trend mmHg graph (column section) -->
+        <ul id="trendmmHg">
+            {{#each patient.trendmmHg-data.columns}}
+            <li>
+                {{time}}-{{value}}-{{value1}}
+            </li>
+            {{/each}}
+        </ul>
+        <!-- data for trend mmHg graph (region section) -->
+        <ul id="trendmmHgregionaxis">
+            {{#each patient.trendmmHg-data.axis-y.values}}
+            <li>
+                {{.}}
+            </li>
+            {{/each}}
+        </ul>
+
+
+    </div>
+
+
+
+    <script>
+        /*-----------------------------------------------
+            -------------------------------------------------
+                                PIE CHART
+            -------------------------------------------------
+            ------------------------------------------------*/
+
+        // Extracting data from html for pie chart
+
+        var datapie = Array.from(document.querySelectorAll('#piechartdata li'), (v) => {
+            const data = v.innerText.trim().split("-");
+            return ({
+                value: Number(data[0]),
+                label: data[1],
+                color: data[2]
+            })
+        });
+
+
+
+        // Geenerating pie chart
+        var piedatavalue = datapie.map(chr => ({ ...chr }))
+
+        // Generating Pie chart
+        var piechart = c3.generate({
+            bindto: "#piechart",
+            data: {
+                // iris data from R
+                columns: datapie.map(chr => [chr.label, chr.value]),
+                colors: datapie.reduce((acc, chr) => ({ ...acc, [chr.label]: chr.color }), {}),
+                type: 'pie',
+            },
+            onrendered: function () {
+                d3.selectAll("#piechart .c3-chart-arc text").each(function (v) {
+                    var label = d3.select(this);
+                    var pos = label.attr("transform").match(/-?\d+(\.\d+)?/g);
+
+                    // pos[0] is x, pos[1] is y. Do some position changes and update value
+                    label.style("transform", "translate(" + (parseFloat(pos[0]) * 7) + "px," + (parseFloat(pos[1]) * 7) + "px)");
+                    console.log(pos);
+                });
+            },
+            legend: {
+                show: false
+            },
+            size: {
+                height: 84,
+                width: 84
+            }
+        });
+
+
+
+
+
+        /*-----------------------------------------------
+        -------------------------------------------------
+              ARRHYTHMIA ALERTS LINE TIMESEIRES CHART
+        -------------------------------------------------
+        ------------------------------------------------*/
+
+        // Extracting data from html for columns of clinical
+
+        var columnclinical = Array.from(document.querySelectorAll('#clinical li'), (v) => {
+            const data = v.innerText.trim().split("-");
+            return ({
+                time: data[0],
+                value: Number(data[1])
+            })
+        });
+
+        // Extracting data from html for y-axis of clinical
+        var regionAreaclinical = Array.from(document.querySelectorAll('#clinicalArearegion li'), (v) => {
+            const data = v.innerText.trim().split("-");
+            return ({
+                axis: 'x',
+                start: data[1],
+                end: data[2]
+            })
+        });
+
+        // Geenerating timeseries region graph for clinical
+        var regionAreaclinicaldata = regionAreaclinical.map(chr => ({ ...chr, class: 'regionX', opacity: 1 }))
+
+        var clinical = c3.generate({
+            bindto: "#clinical",
+            size: {
+                height: 65,
+                width: 450
+            },
+            legend: {
+                show: false
+            },
+            data: {
+                x: 'x',
+                xFormat: '%H:%M',
+                columns: [
+                    ['x', ...columnclinical.map(chr => (chr.time))],
+                    ['data', ...columnclinical.map(chr => Number(chr.value))]
+                ],
+            },
+            point: {
+                show: false
+            },
+            color: {
+                pattern: ['#0054a0']
+            },
+            padding:
+            {
+                bottom: 0
+            },
+            axis: {
+                x: {
+                    show: true,
+                    type: 'timeseries',
+                    tick: {
+                        format: '%H:%M'
+                    }
+                },
+                y: {
+                    show: false,
+                    max: Number("{{patient.Clinical-Alerts.clinical-data.axis-y.max}}")
+                }
+            },
+            regions: regionAreaclinicaldata
+        });
+
+
+
+
+        /*-----------------------------------------------
+              -------------------------------------------------
+                    TREND MMHG AREA LINE TIMESEIRES CHART
+              -------------------------------------------------
+              ------------------------------------------------*/
+
+
+        var columnf = Array.from(document.querySelectorAll('#trendf li'), (v) => {
+            const data = v.innerText.trim().split("-");
+            return ({
+                time: data[0],
+                value: Number(data[1])
+            })
+        });
+
+        // Extracting data from html for columns of trend mmHg
+        var columnmmHg = Array.from(document.querySelectorAll('#trendmmHg li'), (v) => {
+            const data = v.innerText.trim().split("-");
+            return ({
+                time: data[0],
+                value: Number(data[1]),
+                value1: Number(data[2])
+            })
+        });
+
+        // Extracting data from html for y-axis of trend mmHg
+        var regionaxismmHg = Array.from(document.querySelectorAll('#trendmmHgregionaxis li'), (v) => {
+            const data = v.innerText.trim();
+            return ({
+                value: Number(data)
+            })
+        });
+
+        // Geenerating timeseries region graph for trend mmHg
+        var trendmmHg = c3.generate({
+            bindto: "#trendmmHg",
+            size: {
+                height: 65
+            },
+
+            legend: {
+                show: false
+            },
+            data: {
+                x: 'x',
+                xFormat: '%H:%M',
+                columns: [
+                    ['x', ...columnf.map(chr => (chr.time))],
+                    ['data', ...columnmmHg.map(chr => Number(chr.value))],
+                    ['data1', ...columnmmHg.map(chr => Number(chr.value1))]
+                ],
+                type: 'spline',
+            },
+            color: {
+                pattern: ['#2887DC', '#033B6C', '#00549F']
+            },
+            padding:
+            {
+                bottom: 0
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%H:%M'
+                    }
+                },
+                y: {
+                    max: Number("{{patient.trendmmHg-data.axis-y.max}}")
+                    , tick: {
+                        values: [...regionaxismmHg.map(chr => chr.value)]
+                    }
+                },
+            }
+        });
+
+
+
+
+
+        // var ecg_data = [0, 0, 0, 0.6, 0.5, 0.25, 0, 0, 0, -0.9, -0.8, -0.7, 0, 0, 0, 0.7, 0.9, 0.8, 0, 0, 0, -0.9, -0.85, -0.65, 0, 0, 0];
+        // // var ecg_data1 = [-0.1, -0.2, -0.25, -0.5, 0.4, 0.15, 0, 0, 0, -0.8, -0.6, -0.1, 0, 0, 0, 0.3, 0.2, 0.5, 0, 0, 0, -0.5, -0.65, -0.5, 0, 0, 0];
+
+
+        // var chart = c3.generate({
+        //     bindto: '#ecg-chart',
+        //     data: {
+        //         columns: [
+        //             ['data', ...ecg_data],
+        //             // ['data1', ...ecg_data1]
+        //         ],
+        //         type: 'spline'
+        //     },
+        //     axis: {
+        //         y: {
+        //             max: 1,
+        //             min: -1,
+        //             padding: { top: 0, bottom: 0 },
+        //             show: false
+        //         },
+        //         x: {
+        //             show: false
+        //         }
+        //     },
+        //     legend: {
+        //         show: false
+        //     },
+        //     padding: {
+        //         left: 0,
+        //         right: 0
+        //     },
+
+        //     size: {
+        //         width: 400,
+        //         height: 30,
+        //     }
+        // });
+
+
+
+        var xAxisStripLinesArray = [];
+        var yAxisStripLinesArray = [];
+        var dps = [];
+        var dps2 = [];
+        var dataPointsArray = [1835, 1967, 1956, 1952, 1952, 1919, 1886, 1886, 1883, 1883, 1876, 1859, 1859, 1838, 1844, 1844, 1838, 1823, 1823, 1823, 1850, 1850, 1817, 1824, 1824, 1846, 1835, 1835, 1838, 1838, 1853, 1853, 1853, 1853, 1862, 1862, 1858, 1872, 1872, 1876, 1874, 1874, 1883, 1896, 1896, 1858, 1858, 1834, 1838, 1838, 1831, 1853, 1853, 1847, 1845, 1845, 1851, 1860, 1860, 1870, 1872, 1872, 1891, 1893, 1893, 1894, 1894, 1893, 1893, 1885, 1885, 1894, 1882, 1882, 1871, 1890, 1890, 1865, 1868, 1868, 1874, 1876, 1876, 1887, 1884, 1884, 1886, 1888, 1888, 1895, 1902, 1902, 1898, 1898, 1898, 1886, 1886, 1883, 1883, 1876, 1859, 1859, 1838, 1844, 1844, 1838, 1823, 1823, 1823, 1850, 1850, 1817, 1824, 1824, 1846, 1835, 1835, 1838, 1838, 1853, 1853, 1853, 1853, 1862, 1862, 1858, 1872, 1872, 1876, 1874, 1874, 1883, 1896, 1896, 1858, 1858, 1834, 1838, 1838, 1831, 1853, 1853, 1847, 1845, 1845, 1851, 1860, 1860, 1870, 1872, 1872, 1891, 1893, 1893, 1894, 1894, 1893, 1893, 1885, 1885, 1894, 1882, 1882, 1871, 1890, 1890, 1865, 1868, 1868, 1874, 1876, 1876, 1887, 1884, 1884, 1886, 1888, 1888, 1895, 1902, 1902, 1898, 1898, 1898,];
+        var dataPointsArray2 = [1835, 1967, 1956, 1952, 1952, 1919, 1886, 1886, 1883, 1883, 1876, 1859, 1859, 1838, 1844, 1844, 1838, 1823, 1823, 1823, 1850, 1850, 1817, 1824, 1824, 1846, 1835, 1835, 1838, 1838, 1853, 1853, 1853, 1853, 1862, 1862, 1858, 1872, 1872, 1876, 1874, 1874, 1883, 1896, 1896, 1858, 1858, 1834, 1838, 1838, 1831, 1853, 1853, 1847, 1845, 1845, 1851, 1860, 1860, 1870, 1872, 1872, 1891, 1893, 1893, 1894, 1894, 1893, 1893, 1885, 1885, 1894, 1882, 1882, 1871, 1890, 1890, 1865, 1868, 1868, 1874, 1876, 1876, 1887, 1884, 1884, 1886, 1888, 1888, 1895, 1902, 1902, 1898, 1898, 1898, 1886, 1886, 1883, 1883, 1876, 1859, 1859, 1838, 1844, 1844, 1838, 1823, 1823, 1823, 1850, 1850, 1817, 1824, 1824, 1846, 1835, 1835, 1838, 1838, 1853, 1853, 1853, 1853, 1862, 1862, 1858, 1872, 1872, 1876, 1874, 1874, 1883, 1896, 1896, 1858, 1858, 1834, 1838, 1838, 1831, 1853, 1853, 1847, 1845, 1845, 1851, 1860, 1860, 1870, 1872, 1872, 1891, 1893, 1893, 1894, 1894, 1893, 1893, 1885, 1885, 1894, 1882, 1882, 1871, 1890, 1890, 1865, 1868, 1868, 1874, 1876, 1876, 1887, 1884, 1884, 1886, 1888, 1888, 1895, 1902, 1902, 1898, 1898, 1898,];
+
+
+        var chart = new CanvasJS.Chart("ecgChart",
+            {
+                height: 60,
+                width: 450,
+                axisY: null,
+                axisX: null,
+                creditText: "",
+                axisY: {
+                    stripLines: yAxisStripLinesArray,
+                    gridThickness: 0,
+                    gridColor: "#BCE5FD",
+                    lineColor: "transparent",
+                    tickColor: "transparent",
+                    labelFontColor: "transparent",
+                    lineThickness: 0,
+                },
+                axisX: {
+                    stripLines: xAxisStripLinesArray,
+                    gridThickness: 0,
+                    gridColor: "#BCE5FD",
+                    lineColor: "transparent",
+                    tickColor: "transparent",
+                    labelFontColor: "transparent",
+                    lineThickness: 0,
+                },
+                data: [
+                    {
+                        type: "spline",
+                        color: "black",
+                        dataPoints: dps
+                    },
+
+                    {
+                        type: "spline",
+                        color: "black",
+                        dataPoints: dps2
+                    }
+                ]
+            });
+
+        addDataPointsAndStripLines();
+        chart.render();
+
+        function addDataPointsAndStripLines() {
+            //dataPoints
+            for (var i = 0; i < dataPointsArray.length; i++) {
+                dps.push({ y: dataPointsArray[i] });
+            }
+
+            for (var i = 0; i < dataPointsArray.length; i++) {
+                dps2.push({ y: dataPointsArray[i] });
+            }
+
+
+            //StripLines
+            for (var i = 0; i < 3000; i = i + 100) {
+                if (i % 1000 != 0)
+                    yAxisStripLinesArray.push({ value: i, thickness: 0.7, color: "#BCE5FD" });
+            }
+            for (var i = 0; i < 1400; i = i + 20) {
+                if (i % 200 != 0)
+                    xAxisStripLinesArray.push({ value: i, thickness: 0.7, color: "#BCE5FD" });
+            }
+        }
+
+
+        // Pass your ECG data points here
+
+
+
+        (function () {
+
+
+
+
+
+            var ECGPulse = function () {
+                // this function is strict...
+                this.demo = document.getElementById('demo');
+                this.ctx = this.demo.getContext('2d');
+                this.w = this.demo.getBoundingClientRect().width;
+                this.h = this.demo.getBoundingClientRect().height;
+                this.px = 0;
+                this.opx = 0;
+                this.py = this.h / 2;
+                this.opy = this.py;
+                this.speed = 0.5;
+                this.scanBarWidth = 20;
+                this.frame = null;
+
+                this.demo.width = this.w;
+                this.demo.height = this.h;
+
+                this.ctx.strokeStyle = '#000000';
+                this.ctx.lineWidth = 0.5;
+
+
+                this.loop = function () {
+                    this.px += this.speed;
+                    // console.log(this);
+                    this.ctx.clearRect(this.px, 0, this.scanBarWidth, this.h);
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.opx, this.opy);
+                    this.ctx.lineTo(this.px, this.py);
+                    this.ctx.stroke();
+
+                    for (var i = 1; i < 5; i++) {
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(this.opx, this.opy - 100 * i);
+                        this.ctx.lineTo(this.px, this.py - 100 * i);
+                        this.ctx.stroke();
+
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(this.opx, this.opy + 100 * i);
+                        this.ctx.lineTo(this.px, this.py + 100 * i);
+                        this.ctx.stroke();
+                    }
+
+                    this.opx = this.px;
+                    this.opy = this.py;
+
+                    if (this.opx > this.w) {
+                        this.px = this.opx = -this.speed;
+                        // console.log('opx > w');
+                        //           window.cancelAnimationFrame(this.frame);
+                        //           return;
+                    }
+
+                    this.frame = requestAnimationFrame(this.loop.bind(this));
+                };
+
+                this.frame = requestAnimationFrame(this.loop.bind(this));
+
+                this.demo.onmousemove = function (e) {
+                    var r = this.demo.getBoundingClientRect();
+                    this.py += e.movementY - r.top;
+                    // py = e.clientY - r.top;
+                }.bind(this);
+
+                this.demo.onclick = function (e) {
+                    console.log(this.frame);
+                    window.cancelAnimationFrame(this.frame);
+                }.bind(this);
+            };
+
+            var ecg = new ECGPulse();
+            var gui = new dat.GUI();
+            gui.add(ecg, 'speed', 0.1, 5);
+
+
+
+            this.loop = function (dataPoints) {
+                // Clear the canvas
+                this.ctx.clearRect(0, 0, this.w, this.h);
+
+                // Draw the data points
+                this.ctx.beginPath();
+                this.ctx.moveTo(dataPoints[0][0], dataPoints[0][1]);
+                for (var i = 1; i < dataPoints.length; i++) {
+                    this.ctx.lineTo(dataPoints[i][0], dataPoints[i][1]);
+                }
+                this.ctx.stroke();
+            };
+
+
+            var ecg = new ECGPulse();
+            ecg.loop([[0, 100], [0, 10], [0, 20], [0, 30], [0, 40], [0, 50], [0, 60], [0, 70], [10, 110], [20, 120], [30, 130], [40, 200], [50, 300], [60, 600], [70, 700], [80, 800]]);
+
+        }());
+
+        // Sample data
+        var dataPointsArray = [20, 25, 10, 30, 15];
+
+        // Create a new chart object
+        var chart = new CanvasJS.Chart("chartContainer", {
+            data: [{
+                type: "line",
+                dataPoints: []
+            }]
+        });
+
+        // Push data points to the chart
+        for (var i = 0; i < dataPointsArray.length; i++) {
+            chart.options.data[0].dataPoints.push({
+                y: dataPointsArray[i]
+            });
+        }
+
+        // Render the chart
+        chart.render();
+
+
+    </script>
+</body>
+
+</html>

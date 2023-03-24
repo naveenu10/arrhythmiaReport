@@ -1,0 +1,31 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="c3.css">
+  <script src="c3.js"></script>
+  <script src="d3.js"></script>
+</head>
+<body>
+  <div id="ecg-report-graph"></div>
+  <script>
+    var chart = c3.generate({
+      bindto: '#ecg-report-graph',
+      data: {
+        x: 'x',
+        columns: [
+          ['x', 'time1', 'time2', 'time3', 'time4', 'time5'],
+          ['ECG Data', 30, 200, 100, 400, 150]
+        ]
+      },
+      axis: {
+        x: {
+          label: 'Time (s)'
+        },
+        y: {
+          label: 'Voltage (mV)'
+        }
+      },
+      type: 'line'
+    });
+  </script>
+</body>
+</html>
